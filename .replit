@@ -1,0 +1,52 @@
+modules = ["python-3.12", "php-8.2", "bash"]
+[agent]
+expertMode = true
+stack = "BEST_EFFORT_FALLBACK"
+
+[nix]
+channel = "stable-25_05"
+packages = ["libiconv", "libxcrypt"]
+
+[userenv]
+
+[userenv.shared]
+DJANGO_SETTINGS_MODULE = "finsio.settings.development"
+DJANGO_DEBUG = "true"
+DJANGO_ALLOWED_HOSTS = "*"
+BACKEND_INTERNAL_TOKEN = "TJFw2U66Qu1D3A32hGU9FESGHZhxX8oH8hEfuKF12got1ymP1sy6Ijieu-p-iL8X"
+DJANGO_SECRET_KEY = "mh9JYFHsDk4RsuOoSWD_5uxMGxOaAQJNZD2r1kFQrwkII4rbtJy7u-p3F3Yfbec_ubw"
+BEANCOUNT_PATH = "/home/runner/workspace/beancount"
+PAYMENT_HOST = "localhost:5000"
+PAYPAL_MODE = "sandbox"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash start.sh"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["bash", "-c", "cd /home/runner/workspace/backend && python3 manage.py migrate && gunicorn --bind=0.0.0.0:5000 --reuse-port --workers=2 finsio.wsgi:application"]

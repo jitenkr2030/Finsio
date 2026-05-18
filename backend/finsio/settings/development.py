@@ -78,10 +78,14 @@ LOGGING = {
     },
 }
 
-# Override: use SQLite in local dev (PostgreSQL not available in proot)
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# Use Replit PostgreSQL (DATABASE_URL is set by the platform)
+import dj_database_url, os
+_db_url = os.environ.get("DATABASE_URL")
+if _db_url:
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=_db_url,
+            conn_max_age=600,
+            conn_health_checks=False,
+        )
     }
-}
