@@ -1,0 +1,19 @@
+; ═══════════════════════════════
+;  Liabilities
+; ═══════════════════════════════
+
+; Payables
+2024-01-01 open Liabilities:AccountsPayable              USD
+2024-01-01 open Liabilities:SalesTaxPayable              USD
+2024-01-01 open Liabilities:IncomeTaxPayable             USD
+
+; Deferred revenue (prepaid by customers)
+2024-01-01 open Liabilities:DeferredRevenue              USD
+
+; Credit and loans
+2024-01-01 open Liabilities:CreditCard                   USD
+2024-01-01 open Liabilities:LoansPayable                 USD
+
+; Payroll liabilities
+2024-01-01 open Liabilities:PayrollLiabilities           USD
+2024-01-01 open Liabilities:BenefitsPayable              USD

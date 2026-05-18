@@ -1,0 +1,29 @@
+; ═══════════════════════════════════════
+;  Finsio — Main Beancount File
+;  Entry point for all beancount queries,
+;  reports, and validation.
+; ═══════════════════════════════════════
+
+option "title" "Finsio Financial Records"
+option "operating_currency" "USD"
+option "operating_currency" "EUR"
+option "filename" "finsio.beancount"
+
+; Automatically create accounts on first use
+plugin "beancount.plugins.auto_accounts"
+
+; ── Chart of Accounts ──
+include "accounts/assets.beancount"
+include "accounts/liabilities.beancount"
+include "accounts/equity.beancount"
+include "accounts/income.beancount"
+include "accounts/expenses.beancount"
+
+; ── Options ──
+include "config/options.beancount"
+
+; ── Auto-generated transactions ──
+; These files are created by the Django backend's
+; BeancountGenerator when payments, invoices, and
+; journal entries are processed.
+include "transactions/*.beancount"

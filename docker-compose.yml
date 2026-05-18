@@ -1,0 +1,152 @@
+version: "3.9"
+
+services:
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: finsio-gateway
+    environment:
+      FUSIO_CONNECTION: "pdo-mysql://fusio:fusio@mysql_fusio/fusio"
+      FUSIO_URL: "http://localhost:8080"
+      FUSIO_SECRET: "${FUSIO_SECRET}"
+      BACKEND_URL: "http://backend:8000"
+      BACKEND_INTERNAL_TOKEN: "${BACKEND_INTERNAL_TOKEN}"
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql_fusio
+      - backend
+    networks:
+      - finsio-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: finsio-backend
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    environment:
+      DJANGO_SETTINGS_MODULE: "finsio.settings.development"
+      DATABASE_URL: "postgres://finsio:finsio@postgres:5432/finsio"
+      REDIS_URL: "redis://redis:6379/0"
+      CELERY_BROKER_URL: "redis://redis:6379/1"
+      STRIPE_SECRET_KEY: "${STRIPE_SECRET_KEY}"
+      STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET}"
+      PAYPAL_CLIENT_ID: "${PAYPAL_CLIENT_ID}"
+      PAYPAL_CLIENT_SECRET: "${PAYPAL_CLIENT_SECRET}"
+      BEANCOUNT_PATH: "/app/beancount"
+      BACKEND_INTERNAL_TOKEN: "${BACKEND_INTERNAL_TOKEN}"
+    volumes:
+      - ./backend:/app
+      - ./beancount:/app/beancount
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - finsio-net
+
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: finsio-celery
+    command: "celery -A finsio worker -l info -Q payments,accounting,invoicing"
+    environment:
+      DJANGO_SETTINGS_MODULE: "finsio.settings.development"
+      DATABASE_URL: "postgres://finsio:finsio@postgres:5432/finsio"
+      CELERY_BROKER_URL: "redis://redis:6379/1"
+      BEANCOUNT_PATH: "/app/beancount"
+    volumes:
+      - ./backend:/app
+      - ./beancount:/app/beancount
+    depends_on:
+      - backend
+      - redis
+    networks:
+      - finsio-net
+
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: finsio-celery-beat
+    command: "celery -A finsio beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    environment:
+      DJANGO_SETTINGS_MODULE: "finsio.settings.development"
+      DATABASE_URL: "postgres://finsio:finsio@postgres:5432/finsio"
+      CELERY_BROKER_URL: "redis://redis:6379/1"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - backend
+      - redis
+    networks:
+      - finsio-net
+
+  nginx:
+    build:
+      context: ./infrastructure/nginx
+      dockerfile: Dockerfile
+    container_name: finsio-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - gateway
+      - backend
+    networks:
+      - finsio-net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: finsio-postgres
+    environment:
+      POSTGRES_DB: finsio
+      POSTGRES_USER: finsio
+      POSTGRES_PASSWORD: finsio
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - finsio-net
+
+  mysql_fusio:
+    image: mysql:8.0
+    container_name: finsio-mysql-fusio
+    environment:
+      MYSQL_DATABASE: fusio
+      MYSQL_USER: fusio
+      MYSQL_PASSWORD: fusio
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - finsio-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: finsio-redis
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - finsio-net
+
+volumes:
+  postgres_data:
+  mysql_data:
+  redis_data:
+
+networks:
+  finsio-net:
+    driver: bridge

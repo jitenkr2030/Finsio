@@ -1,0 +1,216 @@
+{
+  "tools": [
+    {
+      "name": "prepare_payment",
+      "description": "Prepare a payment transaction. Auto-selects the best processor if none specified. Returns a redirect URL for the customer to complete payment.",
+      "endpoint": "/api/v1/payments/prepare",
+      "method": "POST",
+      "parameters": {
+        "amount": {
+          "type": "number",
+          "required": true,
+          "description": "Payment amount in major currency units (e.g. 49.99)"
+        },
+        "currency": {
+          "type": "string",
+          "default": "USD",
+          "description": "ISO 4217 currency code"
+        },
+        "processor": {
+          "type": "string",
+          "enum": ["stripe", "paypal", "braintree", "authorize_net"],
+          "description": "Preferred processor. Omit to auto-select."
+        },
+        "customer_id": {
+          "type": "string",
+          "required": true,
+          "description": "Unique customer identifier"
+        },
+        "customer_email": {
+          "type": "string",
+          "required": true,
+          "description": "Customer email for receipt"
+        },
+        "description": {
+          "type": "string",
+          "description": "What the payment is for"
+        },
+        "reference": {
+          "type": "string",
+          "description": "Invoice or order reference number"
+        }
+      },
+      "returns": {
+        "payment_id": "UUID of the created payment",
+        "status": "Payment status (new, prepared, etc.)",
+        "processor": "Selected processor slug",
+        "redirect_url": "URL to send the customer to for payment"
+      }
+    },
+    {
+      "name": "get_payment_status",
+      "description": "Check the current status and details of a payment by its ID.",
+      "endpoint": "/api/v1/payments/{payment_id}",
+      "method": "GET",
+      "parameters": {
+        "payment_id": {
+          "type": "string",
+          "required": true,
+          "description": "Payment UUID"
+        }
+      }
+    },
+    {
+      "name": "create_invoice",
+      "description": "Create an invoice with line items. Posts accounting entries to the ledger and optionally generates a payment link for the customer.",
+      "endpoint": "/api/v1/invoices",
+      "method": "POST",
+      "parameters": {
+        "customer_id": {
+          "type": "string",
+          "required": true
+        },
+        "customer_email": {
+          "type": "string",
+          "required": true
+        },
+        "customer_name": {
+          "type": "string",
+          "required": true
+        },
+        "line_items": {
+          "type": "array",
+          "required": true,
+          "items": {
+            "type": "object",
+            "properties": {
+              "description": {"type": "string"},
+              "quantity": {"type": "number"},
+              "unit_price": {"type": "number"},
+              "tax_rate": {"type": "number", "description": "Decimal, e.g. 0.08 for 8%"},
+              "category": {"type": "string"}
+            }
+          }
+        },
+        "currency": {"type": "string", "default": "USD"},
+        "due_days": {"type": "integer", "default": 30},
+        "auto_collect": {
+          "type": "boolean",
+          "default": false,
+          "description": "Auto-generate payment link via Stripe"
+        },
+        "processor": {
+          "type": "string",
+          "description": "Preferred payment processor for auto_collect"
+        }
+      }
+    },
+    {
+      "name": "list_invoices",
+      "description": "List invoices with optional status filter and pagination.",
+      "endpoint": "/api/v1/invoices",
+      "method": "GET",
+      "parameters": {
+        "status": {
+          "type": "string",
+          "enum": ["draft", "pending", "partial", "paid", "overdue", "cancelled"]
+        },
+        "entity": {"type": "string"},
+        "page": {"type": "integer", "default": 1},
+        "page_size": {"type": "integer", "default": 50}
+      }
+    },
+    {
+      "name": "get_balance_sheet",
+      "description": "Retrieve a balance sheet for an entity as of a given date. Shows assets, liabilities, and equity.",
+      "endpoint": "/api/v1/accounting/balance-sheet",
+      "method": "GET",
+      "parameters": {
+        "entity": {
+          "type": "string",
+          "required": true,
+          "description": "Entity slug"
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date",
+          "description": "Report date, defaults to today"
+        }
+      }
+    },
+    {
+      "name": "get_profit_loss",
+      "description": "Retrieve a Profit & Loss statement for a given period. Shows revenue and expenses.",
+      "endpoint": "/api/v1/accounting/profit-loss",
+      "method": "GET",
+      "parameters": {
+        "entity": {
+          "type": "string",
+          "required": true,
+          "description": "Entity slug"
+        },
+        "date_from": {
+          "type": "string",
+          "format": "date",
+          "required": true
+        },
+        "date_to": {
+          "type": "string",
+          "format": "date",
+          "required": true
+        }
+      }
+    },
+    {
+      "name": "create_journal_entry",
+      "description": "Create a double-entry journal entry in the accounting system. Every entry is recorded in both django-ledger and beancount.",
+      "endpoint": "/api/v1/accounting/journal-entries",
+      "method": "POST",
+      "parameters": {
+        "entity": {
+          "type": "string",
+          "required": true,
+          "description": "Entity slug"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "required": true
+        },
+        "description": {
+          "type": "string",
+          "required": true,
+          "description": "Narration for the journal entry"
+        },
+        "entries": {
+          "type": "array",
+          "required": true,
+          "items": {
+            "type": "object",
+            "properties": {
+              "account": {"type": "string", "description": "Account code"},
+              "debit": {"type": "number"},
+              "credit": {"type": "number"}
+            }
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    {
+      "name": "list_ledger_accounts",
+      "description": "List all active ledger accounts in the Chart of Accounts for an entity.",
+      "endpoint": "/api/v1/accounting/ledger-accounts",
+      "method": "GET",
+      "parameters": {
+        "entity": {
+          "type": "string",
+          "required": true
+        }
+      }
+    }
+  ]
+}

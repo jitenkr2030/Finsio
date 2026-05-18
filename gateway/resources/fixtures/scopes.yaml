@@ -1,0 +1,33 @@
+# ═══════════════════════════════════════
+#  Finsio API Scopes
+#  Defines permission boundaries
+# ═══════════════════════════════════════
+
+scopes:
+
+  - name: public
+    description: "Public endpoints with no authentication (health, webhooks)"
+
+  - name: payment
+    description: "Payment operations — prepare, status, list"
+    rate_limit:
+      rate: 1000
+      timespan: 3600
+
+  - name: invoice
+    description: "Invoice operations — create, list, detail"
+    rate_limit:
+      rate: 1000
+      timespan: 3600
+
+  - name: accounting
+    description: "Accounting operations — journal entries, reports, ledger"
+    rate_limit:
+      rate: 500
+      timespan: 3600
+
+  - name: admin
+    description: "Full administrative access to all endpoints"
+    rate_limit:
+      rate: 10000
+      timespan: 3600

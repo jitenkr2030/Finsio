@@ -1,0 +1,2 @@
+2026-05-17 * "Payment received 4bb56f18-589f-4454-8bf5-b619197a61dc via stripe" #payment  payment_id: "4bb56f18-589f-4454-8bf5-b619197a61dc"  processor: "stripe"  Acme:Assets:PaymentProcessors:Stripe  1649.92 USD  Acme:Assets:AccountsReceivable  -1649.92 USD
+2026-05-17 * "Payment received bd8f2d78-e547-40fd-9251-f94f4880fec8 via paypal" #payment  payment_id: "bd8f2d78-e547-40fd-9251-f94f4880fec8"  processor: "paypal"  Acme:Assets:PaymentProcessors:Paypal  500.00 USD  Acme:Assets:AccountsReceivable  -500.00 USD

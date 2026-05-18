@@ -1,0 +1,50 @@
+{
+    "name": "finsio/gateway",
+    "description": "Finsio API Gateway powered by Fusio",
+    "type": "project",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.2",
+        "fusio/impl": "^4.0",
+        "fusio/adapter-sql": "^4.0",
+        "guzzlehttp/guzzle": "^7.0",
+        "firebase/php-jwt": "^6.10",
+        "monolog/monolog": "^3.5"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5",
+        "phpstan/phpstan": "^1.10"
+    },
+    "autoload": {
+        "psr-4": {
+            "Finsio\\Gateway\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Finsio\\Gateway\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "php bin/fusio migration:execute"
+        ],
+        "post-update-cmd": [
+            "php bin/fusio migration:execute"
+        ],
+        "test": [
+            "phpunit --configuration phpunit.xml"
+        ],
+        "analyse": [
+            "phpstan analyse src/ --level=6"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "fusio/impl": true
+        }
+    }
+}

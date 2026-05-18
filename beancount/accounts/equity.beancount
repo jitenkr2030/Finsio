@@ -1,0 +1,10 @@
+; ═══════════════════════════════
+;  Equity
+; ═══════════════════════════════
+
+2024-01-01 open Equity:RetainedEarnings                  USD
+2024-01-01 open Equity:OpeningBalances                   USD
+2024-01-01 open Equity:OwnerCapital                      USD
+2024-01-01 open Equity:OwnerDraw                         USD
+2024-01-01 open Equity:CommonStock                       USD
+2024-01-01 open Equity:AdditionalPaidInCapital           USD

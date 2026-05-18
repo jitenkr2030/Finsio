@@ -1,0 +1,75 @@
+# ═══════════════════════════════════════
+#  Finsio API Routes
+#  Loaded by Fusio on migration/seed
+# ═══════════════════════════════════════
+
+routes:
+
+  # ── Health (public) ──
+  - path: /health
+    methods: [GET]
+    action: Finsio\Gateway\Action\HealthAction
+    scopes: [public]
+
+  # ── Payments ──
+  - path: /payments/prepare
+    methods: [POST]
+    action: Finsio\Gateway\Action\Payments\PaymentPrepareAction
+    scopes: [payment, admin]
+    description: "Prepare a new payment transaction"
+
+  - path: /payments/webhook/{provider}
+    methods: [POST]
+    action: Finsio\Gateway\Action\Payments\PaymentWebhookAction
+    scopes: [public]
+    description: "Receive payment provider webhooks"
+
+  - path: /payments/processors
+    methods: [GET]
+    action: Finsio\Gateway\Action\Payments\PaymentStatusAction
+    scopes: [payment, admin]
+    description: "List available payment processors"
+
+  - path: /payments/{payment_id}
+    methods: [GET]
+    action: Finsio\Gateway\Action\Payments\PaymentStatusAction
+    scopes: [payment, admin]
+    description: "Get payment status"
+
+  # ── Invoicing ──
+  - path: /invoices
+    methods: [POST]
+    action: Finsio\Gateway\Action\Invoicing\InvoiceCreateAction
+    scopes: [invoice, admin]
+    description: "Create an invoice with line items"
+
+  - path: /invoices
+    methods: [GET]
+    action: Finsio\Gateway\Action\Invoicing\InvoiceListAction
+    scopes: [invoice, admin]
+    description: "List invoices"
+
+  # ── Accounting ──
+  - path: /accounting/journal-entries
+    methods: [GET, POST]
+    action: Finsio\Gateway\Action\Accounting\JournalEntryAction
+    scopes: [accounting, admin]
+    description: "Create or list journal entries"
+
+  - path: /accounting/balance-sheet
+    methods: [GET]
+    action: Finsio\Gateway\Action\Accounting\BalanceSheetAction
+    scopes: [accounting, admin]
+    description: "Generate balance sheet report"
+
+  - path: /accounting/profit-loss
+    methods: [GET]
+    action: Finsio\Gateway\Action\Accounting\ProfitLossAction
+    scopes: [accounting, admin]
+    description: "Generate profit and loss statement"
+
+  - path: /accounting/ledger-accounts
+    methods: [GET]
+    action: Finsio\Gateway\Action\Accounting\LedgerAccountAction
+    scopes: [accounting, admin]
+    description: "List chart of accounts"

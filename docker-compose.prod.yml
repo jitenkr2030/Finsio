@@ -1,0 +1,177 @@
+version: "3.9"
+
+services:
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: finsio-gateway-prod
+    environment:
+      FUSIO_CONNECTION: "pdo-mysql://fusio:${MYSQL_FUSIO_PASSWORD}@mysql_fusio/fusio"
+      FUSIO_URL: "${FUSIO_URL}"
+      FUSIO_SECRET: "${FUSIO_SECRET}"
+      BACKEND_URL: "http://backend:8000"
+      BACKEND_INTERNAL_TOKEN: "${BACKEND_INTERNAL_TOKEN}"
+    restart: unless-stopped
+    depends_on:
+      - mysql_fusio
+      - backend
+    networks:
+      - finsio-net
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: finsio-backend-prod
+    command: "gunicorn finsio.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 2 --timeout 120"
+    environment:
+      DJANGO_SETTINGS_MODULE: "finsio.settings.production"
+      DATABASE_URL: "postgres://finsio:${POSTGRES_PASSWORD}@postgres:5432/finsio"
+      REDIS_URL: "redis://redis:6379/0"
+      CELERY_BROKER_URL: "redis://redis:6379/1"
+      STRIPE_SECRET_KEY: "${STRIPE_SECRET_KEY}"
+      STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET}"
+      PAYPAL_CLIENT_ID: "${PAYPAL_CLIENT_ID}"
+      PAYPAL_CLIENT_SECRET: "${PAYPAL_CLIENT_SECRET}"
+      BEANCOUNT_PATH: "/app/beancount"
+      BACKEND_INTERNAL_TOKEN: "${BACKEND_INTERNAL_TOKEN}"
+      DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY}"
+      DJANGO_ALLOWED_HOSTS: "${DJANGO_ALLOWED_HOSTS}"
+      SENTRY_DSN: "${SENTRY_DSN}"
+    volumes:
+      - beancount_data:/app/beancount
+      - static_files:/app/staticfiles
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - finsio-net
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: finsio-celery-prod
+    command: "celery -A finsio worker -l warning -Q payments,accounting,invoicing --concurrency=4"
+    environment:
+      DJANGO_SETTINGS_MODULE: "finsio.settings.production"
+      DATABASE_URL: "postgres://finsio:${POSTGRES_PASSWORD}@postgres:5432/finsio"
+      CELERY_BROKER_URL: "redis://redis:6379/1"
+      BEANCOUNT_PATH: "/app/beancount"
+      BACKEND_INTERNAL_TOKEN: "${BACKEND_INTERNAL_TOKEN}"
+      DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY}"
+    volumes:
+      - beancount_data:/app/beancount
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - redis
+    networks:
+      - finsio-net
+
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: finsio-celery-beat-prod
+    command: "celery -A finsio beat -l warning --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    environment:
+      DJANGO_SETTINGS_MODULE: "finsio.settings.production"
+      DATABASE_URL: "postgres://finsio:${POSTGRES_PASSWORD}@postgres:5432/finsio"
+      CELERY_BROKER_URL: "redis://redis:6379/1"
+      BACKEND_INTERNAL_TOKEN: "${BACKEND_INTERNAL_TOKEN}"
+      DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY}"
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - redis
+    networks:
+      - finsio-net
+
+  nginx:
+    build:
+      context: ./infrastructure/nginx
+      dockerfile: Dockerfile
+    container_name: finsio-nginx-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - static_files:/var/www/static:ro
+      - ./infrastructure/nginx/ssl:/etc/nginx/ssl:ro
+    restart: unless-stopped
+    depends_on:
+      - gateway
+      - backend
+    networks:
+      - finsio-net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: finsio-postgres-prod
+    environment:
+      POSTGRES_DB: finsio
+      POSTGRES_USER: finsio
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - finsio-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finsio"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql_fusio:
+    image: mysql:8.0
+    container_name: finsio-mysql-fusio-prod
+    environment:
+      MYSQL_DATABASE: fusio
+      MYSQL_USER: fusio
+      MYSQL_PASSWORD: "${MYSQL_FUSIO_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - finsio-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: finsio-redis-prod
+    command: "redis-server --requirepass ${REDIS_PASSWORD} --maxmemory 256mb --maxmemory-policy allkeys-lru"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - finsio-net
+
+volumes:
+  postgres_data:
+  mysql_data:
+  redis_data:
+  beancount_data:
+  static_files:
+
+networks:
+  finsio-net:
+    driver: bridge

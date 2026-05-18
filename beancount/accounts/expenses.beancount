@@ -1,0 +1,31 @@
+; ═══════════════════════════════
+;  Expenses
+; ═══════════════════════════════
+
+; Operating
+2024-01-01 open Expenses:Operating                      USD
+2024-01-01 open Expenses:Salaries                       USD
+2024-01-01 open Expenses:Benefits                       USD
+2024-01-01 open Expenses:Contractors                    USD
+
+; Payment processing
+2024-01-01 open Expenses:PaymentProcessingFees          USD
+2024-01-01 open Expenses:BankFees                       USD
+
+; Technology
+2024-01-01 open Expenses:Software                       USD
+2024-01-01 open Expenses:Hosting                        USD
+
+; Sales & Marketing
+2024-01-01 open Expenses:Advertising                    USD
+2024-01-01 open Expenses:Marketing                      USD
+
+; General & Administrative
+2024-01-01 open Expenses:Office                         USD
+2024-01-01 open Expenses:Travel                         USD
+2024-01-01 open Expenses:Insurance                      USD
+2024-01-01 open Expenses:Legal                          USD
+2024-01-01 open Expenses:Accounting                     USD
+2024-01-01 open Expenses:Taxes                          USD
+2024-01-01 open Expenses:Depreciation                   USD
+2024-01-01 open Expenses:Miscellaneous                  USD

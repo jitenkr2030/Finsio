@@ -1,0 +1,46 @@
+# ═══════════════════════════════════════
+#  Fusio Gateway Configuration
+# ═══════════════════════════════════════
+
+app:
+  env: "%env(FUSIO_ENV)%"
+  debug: "%env(FUSIO_DEBUG)%"
+  url: "%env(FUSIO_URL)%"
+  secret: "%env(FUSIO_SECRET)%"
+
+connection:
+  default: "%env(FUSIO_CONNECTION)%"
+
+# Internal backend connector settings
+finsio:
+  backend:
+    url: "%env(BACKEND_URL)%"
+    token: "%env(BACKEND_INTERNAL_TOKEN)%"
+    timeout: 30
+    retries: 3
+    retry_delay: 500
+
+# Rate limiting
+rate_limit:
+  default:
+    rate: 1000
+    timespan: 3600
+  authenticated:
+    rate: 5000
+    timespan: 3600
+
+# CORS
+cors:
+  allow_origin: "*"
+  allow_methods: "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+  allow_headers: "Authorization, Content-Type, Accept, X-Idempotency-Key"
+  max_age: 86400
+
+# Monetization
+monetization:
+  enabled: true
+  currency: "USD"
+
+# Logging
+psr_log:
+  level: "warning"

@@ -1,0 +1,23 @@
+; ═══════════════════════════════
+;  Assets
+; ═══════════════════════════════
+
+; Bank accounts
+2024-01-01 open Assets:Cash                              USD
+2024-01-01 open Assets:Bank:Operating                    USD
+2024-01-01 open Assets:Bank:Savings                      USD
+2024-01-01 open Assets:Bank:Payroll                      USD
+
+; Receivables
+2024-01-01 open Assets:AccountsReceivable                USD
+
+; Payment processor balances (held until transferred to bank)
+2024-01-01 open Assets:PaymentProcessors:Stripe           USD
+2024-01-01 open Assets:PaymentProcessors:Paypal           USD
+2024-01-01 open Assets:PaymentProcessors:Braintree        USD
+2024-01-01 open Assets:PaymentProcessors:AuthorizeNet     USD
+
+; Other assets
+2024-01-01 open Assets:PrepaidExpenses                   USD
+2024-01-01 open Assets:SecurityDeposits                  USD
+2024-01-01 open Assets:Equipment                         USD

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://finsio.local/schemas/balance_sheet.json",
+  "title": "BalanceSheet",
+  "description": "Schema for balance sheet report request and response",
+  "type": "object",
+  "required": ["entity"],
+  "properties": {
+    "entity": {
+      "type": "string",
+      "description": "Entity slug"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date",
+      "description": "Report date, defaults to today"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+# ═══════════════════════════════════════
+#  Finsio API Monetization Plans
+#  Defines subscription tiers for API access
+# ═══════════════════════════════════════
+
+plans:
+
+  - name: "Free"
+    description: "For testing and small projects"
+    price: 0.00
+    currency: USD
+    period: monthly
+    scopes:
+      - payment
+      - invoice
+    rate_limit:
+      rate: 100
+      timespan: 3600
+    features:
+      - "100 API calls per hour"
+      - "Stripe and PayPal payments"
+      - "Basic invoicing"
+
+  - name: "Growth"
+    description: "For growing businesses"
+    price: 49.99
+    currency: USD
+    period: monthly
+    scopes:
+      - payment
+      - invoice
+      - accounting
+    rate_limit:
+      rate: 5000
+      timespan: 3600
+    features:
+      - "5,000 API calls per hour"
+      - "All payment processors"
+      - "Full accounting access"
+      - "Balance sheet and P&L reports"
+      - "Beancount audit export"
+      - "Priority support"
+
+  - name: "Enterprise"
+    description: "For high-volume operations"
+    price: 199.99
+    currency: USD
+    period: monthly
+    scopes:
+      - payment
+      - invoice
+      - accounting
+      - admin
+    rate_limit:
+      rate: 50000
+      timespan: 3600
+    features:
+      - "50,000 API calls per hour"
+      - "All payment processors"
+      - "Full accounting + admin access"
+      - "Custom webhook endpoints"
+      - "Dedicated support"
+      - "SLA guarantee"
+      - "AI agent MCP tool access"

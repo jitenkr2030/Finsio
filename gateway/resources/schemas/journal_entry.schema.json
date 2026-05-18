@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://finsio.local/schemas/journal_entry.json",
+  "title": "JournalEntry",
+  "description": "Schema for double-entry journal entry creation",
+  "type": "object",
+  "required": ["entity", "date", "description", "entries"],
+  "properties": {
+    "entity": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Entity slug"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Entry date in YYYY-MM-DD format"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "Human-readable narration"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 2,
+      "description": "At least two postings (one debit, one credit)",
+      "items": {
+        "type": "object",
+        "required": ["account"],
+        "properties": {
+          "account": {
+            "type": "string",
+            "description": "Account code (e.g. 1100, 4000)"
+          },
+          "debit": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Debit amount (mutually exclusive with credit)"
+          },
+          "credit": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Credit amount (mutually exclusive with debit)"
+          }
+        }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Optional tags for categorization"
+    }
+  }
+}

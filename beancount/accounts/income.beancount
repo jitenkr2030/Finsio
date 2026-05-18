@@ -1,0 +1,19 @@
+; ═══════════════════════════════
+;  Income
+; ═══════════════════════════════
+
+; Primary revenue streams
+2024-01-01 open Income:Revenue:General                   USD
+2024-01-01 open Income:Revenue:Subscription              USD
+2024-01-01 open Income:Revenue:Services                  USD
+2024-01-01 open Income:Revenue:ApiUsage                  USD
+2024-01-01 open Income:Revenue:Consulting                USD
+2024-01-01 open Income:Revenue:Products                  USD
+
+; Contra-revenue
+2024-01-01 open Income:Refunds                           USD
+2024-01-01 open Income:Discounts                         USD
+
+; Other income
+2024-01-01 open Income:InterestIncome                    USD
+2024-01-01 open Income:MiscellaneousIncome               USD

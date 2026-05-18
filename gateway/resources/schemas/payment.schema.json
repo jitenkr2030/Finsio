@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://finsio.local/schemas/payment.json",
+  "title": "Payment",
+  "description": "Schema for payment preparation and status responses",
+  "type": "object",
+  "required": ["amount"],
+  "properties": {
+    "amount": {
+      "type": "number",
+      "minimum": 0.01,
+      "description": "Payment amount in major currency units (e.g. 49.99)"
+    },
+    "currency": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 3,
+      "default": "USD",
+      "description": "ISO 4217 currency code"
+    },
+    "processor": {
+      "type": "string",
+      "enum": ["stripe", "paypal", "braintree", "authorize_net"],
+      "description": "Preferred payment processor"
+    },
+    "customer_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique customer identifier"
+    },
+    "customer_email": {
+      "type": "string",
+      "format": "email",
+      "description": "Customer email address"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Payment description"
+    },
+    "reference": {
+      "type": "string",
+      "maxLength": 255,
+      "description": "Invoice or order reference number"
+    },
+    "callback_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to redirect customer after payment completion"
+    }
+  }
+}
