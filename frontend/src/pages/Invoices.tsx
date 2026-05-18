@@ -41,30 +41,41 @@ export function Invoices() {
             <table className="w-full text-sm text-left">
               <thead className="text-xs text-muted-foreground uppercase bg-muted/20 sticky top-0">
                 <tr>
-                  <th className="px-6 py-3 font-medium">Invoice ID</th>
+                  <th className="px-6 py-3 font-medium">Invoice #</th>
                   <th className="px-6 py-3 font-medium">Customer</th>
-                  <th className="px-6 py-3 font-medium">Amount</th>
+                  <th className="px-6 py-3 font-medium">Total</th>
+                  <th className="px-6 py-3 font-medium">Due</th>
                   <th className="px-6 py-3 font-medium">Status</th>
-                  <th className="px-6 py-3 font-medium">Date</th>
+                  <th className="px-6 py-3 font-medium">Issue Date</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {invoices.map((inv: any) => (
                   <tr key={inv.id} className="hover:bg-muted/10 transition-colors cursor-pointer">
-                    <td className="px-6 py-4 font-mono text-muted-foreground">{inv.id.split('-')[0]}</td>
-                    <td className="px-6 py-4">{inv.customer || 'Unknown Customer'}</td>
-                    <td className="px-6 py-4 font-medium">{parseFloat(inv.amount || 0).toFixed(2)} {inv.currency || 'USD'}</td>
+                    <td className="px-6 py-4 font-mono text-muted-foreground text-xs">{inv.number || inv.id?.split('-')[0]}</td>
+                    <td className="px-6 py-4">
+                      <div className="font-medium">{inv.customer_name || '—'}</div>
+                      {inv.customer_email && (
+                        <div className="text-xs text-muted-foreground">{inv.customer_email}</div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 font-medium">
+                      {parseFloat(inv.total || 0).toFixed(2)} {inv.currency || 'USD'}
+                    </td>
+                    <td className="px-6 py-4 font-medium text-warning">
+                      {parseFloat(inv.amount_due || 0).toFixed(2)} {inv.currency || 'USD'}
+                    </td>
                     <td className="px-6 py-4">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase ${
-                        inv.status === 'PAID' ? 'bg-success/20 text-success' : 
-                        inv.status === 'VOID' ? 'bg-danger/20 text-danger' : 
+                        inv.status === 'PAID' ? 'bg-success/20 text-success' :
+                        inv.status === 'VOID' || inv.status === 'CANCELLED' ? 'bg-danger/20 text-danger' :
                         'bg-warning/20 text-warning'
                       }`}>
                         {inv.status}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-muted-foreground">
-                      {new Date(inv.created_at).toLocaleDateString()}
+                      {inv.issue_date ? new Date(inv.issue_date).toLocaleDateString() : '—'}
                     </td>
                   </tr>
                 ))}
