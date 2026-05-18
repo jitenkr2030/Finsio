@@ -43,10 +43,12 @@ class HealthCheckView(APIView):
 
         code = status.HTTP_200_OK if overall == "healthy" else status.HTTP_503_SERVICE_UNAVAILABLE
 
+        from django.utils import timezone
         return Response(
             {
                 "status": overall,
                 "version": "1.0.0",
+                "timestamp": timezone.now().isoformat(),
                 "database": db_status,
                 "redis": redis_status,
             },
